@@ -1,0 +1,10 @@
+{
+	"autodeskProduct":	"Fusion360",
+	"type":	"script",
+	"author":	"copypastestd",
+	"description":	{
+		"":	"Using the code from Lab 1, query the profile geometry from the two circles that were created. This profile will be needed to create the extrude for the pulley geometry. "
+	},
+	"supportedOS":	"windows|mac",
+	"editEnabled":	true
+}

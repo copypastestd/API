@@ -1,0 +1,10 @@
+{
+	"autodeskProduct":	"Fusion360",
+	"type":	"script",
+	"author":	"copypastestd",
+	"description":	{
+		"":	"http://fusion360api.weebly.com"
+	},
+	"supportedOS":	"windows|mac",
+	"editEnabled":	true
+}

@@ -1,0 +1,10 @@
+{
+	"autodeskProduct":	"Fusion360",
+	"type":	"script",
+	"author":	"copypastestd",
+	"description":	{
+		"":	"Create a new script. In this script, use selectEntity to get two points that the user selects"
+	},
+	"supportedOS":	"windows|mac",
+	"editEnabled":	true
+}
