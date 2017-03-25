@@ -1,5 +1,5 @@
 #Author-copypastestd
-#Description-Using the code from Lab 1, query the profile geometry from the two circles that were created. This profile will be needed to create the extrude for the pulley geometry. 
+#Description-Add circle
 
 import adsk.core, adsk.fusion, adsk.cam, traceback
 
@@ -16,7 +16,8 @@ def run(context):
         design = app.activeProduct
         
         # Get the root component of the active design.
-        rootComp = design.rootComponent
+        #rootComp = design.rootComponent
+        rootComp = adsk.fusion.Component.cast(design.rootComponent)        
         
         ## Create sketch 1 on the xy plane.
         # First access the sketches collection of the root component        
@@ -71,6 +72,21 @@ def run(context):
         # Creating the extrusion
         secondExtrude = extrudes.add(secondExtrudeInput)
         
+        # Creating a Pattern Feature
+        # Get the CircuLAR pattern Collection
+        circularPatterns = rootComp.features.circularPatternFeatures
+        # Creating the entity collection to pass into the input
+        inputEntitiesCollection = adsk.core.ObjectCollection.create()
+        inputEntitiesCollection.add(secondExtrude)
+        inputAxis = rootComp.yConstructionAxis
+        # Create the circular pattern input
+        circularPatternInput = circularPatterns.createInput(inputEntitiesCollection, inputAxis)
+        circularPatternInput.quantity = adsk.core.ValueInput.createByReal(5)
+        circularPatternInput.totalAngle = adsk.core.ValueInput.createByString('180 deg')
+        circularPatternInput.isSymmetric = False
+        # Creating the Circular Pattern
+        circularPattern = circularPatterns.add(circularPatternInput)
+
     except:
         if ui:
             ui.messageBox('Failed:\n{}'.format(traceback.format_exc()))

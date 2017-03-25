@@ -1,0 +1,10 @@
+{
+	"autodeskProduct":	"Fusion360",
+	"type":	"script",
+	"author":	"CopyPasteStd",
+	"description":	{
+		"":	"Python discript"
+	},
+	"supportedOS":	"windows|mac",
+	"editEnabled":	true
+}

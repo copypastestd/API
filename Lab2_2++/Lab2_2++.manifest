@@ -1,0 +1,10 @@
+{
+	"autodeskProduct":	"Fusion360",
+	"type":	"script",
+	"author":	"copypastestd",
+	"description":	{
+		"":	"Add circle"
+	},
+	"supportedOS":	"windows|mac",
+	"editEnabled":	true
+}

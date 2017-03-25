@@ -1,0 +1,10 @@
+{
+	"autodeskProduct":	"Fusion360",
+	"type":	"script",
+	"author":	"copypastestd",
+	"description":	{
+		"":	"Using userInterface.selectEntity, ask the user to select two points. Calculate the length of a belt if there were two pulleys at those two selected points. The belt length should consider the radii of the two pulleys. Output the answer to the users screen."
+	},
+	"supportedOS":	"windows|mac",
+	"editEnabled":	true
+}
