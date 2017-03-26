@@ -8,6 +8,7 @@ def run(context):
     try:
         app = adsk.core.Application.get()
         design = app.activeProduct
+        unitsMgr = design.unitsManager
         
         ui  = app.userInterface
         ui.messageBox('Select two cylindrical faces')
@@ -16,6 +17,8 @@ def run(context):
         selectedItem2 = ui.selectEntity("Select another Cilinder","CylindricalFaces")
         selectedItem2Value = selectedItem2.point
         lenghtBetweenPoints = selectedItem1Value.distanceTo(selectedItem2Value)
+        lenghtToDisplay = unitsMgr.formatInternalValue(lenghtBetweenPoints, unitsMgr.defaultLengthUnits, True)
+        ui.messageBox('The length is: ' + lenghtToDisplay)
         
         #unitsMgr = design.unitsManager
         #ui.messageBox(unitsMgr.formatInternalValue(lenghtBetweenPoints, unitsMgr.defaultLengthUnits, True))
@@ -25,7 +28,7 @@ def run(context):
         radius2 = 3
         adjustedLengthBetweenPulleys = math.sqrt(math.pow(lenghtBetweenPoints, 2) + math.pow(radius1 - radius2, 2))
         beltLength = (adjustedLengthBetweenPulleys * 2) + (math.pi * radius1) + (math.pi * radius2)
-        unitsMgr = design.unitsManager
+        #unitsMgr = design.unitsManager
         displayBeltLenght = unitsMgr.formatInternalValue(beltLength, unitsMgr.defaultLengthUnits, True)
         ui.messageBox('The needs belt length is: ' + displayBeltLenght)
         
