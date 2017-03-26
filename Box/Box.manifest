@@ -1,0 +1,10 @@
+{
+	"autodeskProduct":	"Fusion360",
+	"type":	"script",
+	"author":	"copypastestd",
+	"description":	{
+		"":	"Test box"
+	},
+	"supportedOS":	"windows|mac",
+	"editEnabled":	true
+}
