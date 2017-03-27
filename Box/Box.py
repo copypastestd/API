@@ -23,7 +23,8 @@ def createNewComponent():
     newOcc = allOccs.addNewComponent(adsk.core.Matrix3D.create())
     return newOcc.component
 
-def createBottom():
+def createBottom(test):
+    ui.messageBox(test)
     bottom = createNewComponent()
     bottom.name = "Bottom"
         
@@ -43,6 +44,9 @@ def createBottom():
     bottomExtrudeInput.setDistanceExtent(False, distanceBottomExtrude)
     bottomExtrude = extrudes.add(bottomExtrudeInput)
     bottomExtrude.name = "Bottom"
+    
+    bottomBody = bottom.bRepBodies.item(bottom.bRepBodies.count-1)
+    bottomBody.name = "Bottom"  
 
 def createFront():  
     front = createNewComponent()
@@ -64,6 +68,9 @@ def createFront():
     frontExtrudeInput.setDistanceExtent(False, distanceFrontExtrude)
     frontExtrude = extrudes.add(frontExtrudeInput)
     frontExtrude.name = "Front"
+    
+    frontBody = front.bRepBodies.item(front.bRepBodies.count-1)
+    frontBody.name = "Front"  
 
 def createBack():
     back = createNewComponent()
@@ -86,6 +93,9 @@ def createBack():
     backExtrude = extrudes.add(backExtrudeInput)
     backExtrude.name = "Back"
     
+    backBody = back.bRepBodies.item(back.bRepBodies.count-1)
+    backBody.name = "Back"  
+    
 def createRight():
     right = createNewComponent()
     right.name = "Right"
@@ -105,7 +115,10 @@ def createRight():
     distanceRightExtrude = adsk.core.ValueInput.createByReal(h)
     rightExtrudeInput.setDistanceExtent(False, distanceRightExtrude)
     rightExtrude = extrudes.add(rightExtrudeInput)
-    rightExtrude.name = "Right"   
+    rightExtrude.name = "Right"
+    
+    rightBody = right.bRepBodies.item(right.bRepBodies.count-1)
+    rightBody.name = "Right"  
 
 def createLeft():
     left = createNewComponent()
@@ -126,18 +139,47 @@ def createLeft():
     distanceLeftExtrude = adsk.core.ValueInput.createByReal(h)
     leftExtrudeInput.setDistanceExtent(False, distanceLeftExtrude)
     leftExtrude = extrudes.add(leftExtrudeInput)
-    leftExtrude.name = "Left"       
+    leftExtrude.name = "Left"  
+
+    leftBody = left.bRepBodies.item(left.bRepBodies.count-1)
+    leftBody.name = "Left"     
+
+def createTop():
+    top = createNewComponent()
+    top.name = "Top"
+        
+    sketches = top.sketches
+    xzPlane = top.xZConstructionPlane
+    sketch1 = sketches.add(xzPlane)
+    sketch1.name = "Top"
+        
+    lines = sketch1.sketchCurves.sketchLines;
+    rectangle = lines.addCenterPointRectangle(adsk.core.Point3D.create(0, 0, h-t), adsk.core.Point3D.create(l/2, w/2, h-t))
+        
+    extrudes = top.features.extrudeFeatures
+    prof = sketch1.profiles[0]
+    topExtrudeInput = extrudes.createInput(prof, adsk.fusion.FeatureOperations.NewBodyFeatureOperation)
+        
+    distanceTopExtrude = adsk.core.ValueInput.createByReal(t)
+    topExtrudeInput.setDistanceExtent(False, distanceTopExtrude)
+    topExtrude = extrudes.add(topExtrudeInput)
+    topExtrude.name = "Top"
+    
+    topBody = top.bRepBodies.item(top.bRepBodies.count-1)
+    topBody.name = "Top"
+    
 
 def run(context):
     ui = None
     try:
         
-        rootComp = adsk.fusion.Component.cast(design.rootComponent)
-        createBottom()
+        #rootComp = adsk.fusion.Component.cast(design.rootComponent)
+        createBottom("Test text")
         createFront()        
         createBack()
         createRight()
         createLeft()
+        createTop()
         
     except:
         if ui:
