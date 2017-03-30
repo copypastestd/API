@@ -7,6 +7,9 @@ app = adsk.core.Application.get()
 ui  = app.userInterface
 design = app.activeProduct
 unitsMgr = design.unitsManager
+#rootComp = design.rootComponent
+rootComp = adsk.fusion.Component.cast(design.rootComponent)
+allOccs = rootComp.occurrences
 
 # unit - cm
 t = 0.3
@@ -17,9 +20,9 @@ w = 10
 def createNewComponent():
     # Get the active design.
     product = app.activeProduct
-    design = adsk.fusion.Design.cast(product)
-    rootComp = design.rootComponent
-    allOccs = rootComp.occurrences
+    #design = adsk.fusion.Design.cast(product)
+    #rootComp = design.rootComponent
+    #allOccs = rootComp.occurrences
     newOcc = allOccs.addNewComponent(adsk.core.Matrix3D.create())
     return newOcc.component
 
@@ -59,7 +62,27 @@ def createSide(_name, rectangle_type, point1_x, point1_y, point1_z, point2_x, po
     #Rename body
     sideBody = side.bRepBodies.item(side.bRepBodies.count-1)
     sideBody.name = _name     
-    
+
+def listBody():
+    app = adsk.core.Application.get()
+    ui  = app.userInterface
+        
+    design = adsk.fusion.Design.cast(app.activeProduct) 
+    root = design.rootComponent
+    componentNameMap = {}
+    componentNameMap[root.name] = root
+
+    for occ in root.allOccurrences:
+        subComp = occ.component
+        componentNameMap[subComp.name] = subComp
+        
+    allbodies = adsk.core.ObjectCollection.create()
+    for comp in list(componentNameMap.values()):
+        for body in comp.bRepBodies:
+            allbodies.add(body)
+        
+    ui.messageBox("Total {} bodies under root component".format(allbodies.count))
+    return allbodies
 
 def run(context):
     ui = None
@@ -72,7 +95,18 @@ def run(context):
         createSide("Right", "2point", l/2, w/2, 0, l/2-t, -w/2, 0, h)
         createSide("Left", "2point", -l/2, w/2, 0, -l/2+t, -w/2, 0, h)
         createSide("Top", "center", 0, 0, h-t, l/2, -w/2, h-t, t)
-
+        
+        allbodies = listBody()
+        TargetBody = allbodies.item(1)
+        ToolBodies = adsk.core.ObjectCollection.create()
+        ToolBodies.add(allbodies.item(2))
+        features = rootComp.features
+        CombineCutInput = rootComp.features.combineFeatures.createInput(TargetBody, ToolBodies )
+        CombineCutFeats = features.combineFeatures
+        CombineCutInput = CombineCutFeats.createInput(TargetBody, ToolBodies)
+        CombineCutInput.operation = adsk.fusion.FeatureOperations.IntersectFeatureOperation
+        CombineCutFeats.add(CombineCutInput)
+        
     except:
         if ui:
             ui.messageBox('Failed:\n{}'.format(traceback.format_exc()))
