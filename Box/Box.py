@@ -36,20 +36,39 @@ def createSide(_name, rectangle_type, point1_x, point1_y, point1_z, point2_x, po
     # Create sketch
     sketches = side.sketches
     xzPlane = side.xZConstructionPlane
-    sketch1 = sketches.add(xzPlane)
+    if _name == "Top":
+        planes = rootComp.constructionPlanes
+        planeInput = planes.createInput()
+        offset = adsk.core.ValueInput.createByReal(h-t)
+        planeInput.setByOffset(rootComp.xZConstructionPlane, offset)
+        plane = planes.add(planeInput)
+        sketch = sketches.add(plane)
+    else:
+        sketch = sketches.add(xzPlane)
+    #sketch = sketches.add(xzPlane)
     # Rename sketch
-    sketch1.name = _name
+    sketch.name = _name
         
     # Draw rectangle
-    lines = sketch1.sketchCurves.sketchLines;
+    lines = sketch.sketchCurves.sketchLines;
     if rectangle_type == "center":
         rectangle = lines.addCenterPointRectangle(adsk.core.Point3D.create(point1_x, point1_y, point1_z), adsk.core.Point3D.create(point2_x, point2_y, point2_z))
     if rectangle_type == "2point":
         rectangle = lines.addTwoPointRectangle(adsk.core.Point3D.create(point1_x, point1_y, point1_z), adsk.core.Point3D.create(point2_x, point2_y, point2_z))
     
+    sketch.geometricConstraints.addHorizontal(lines.item(0))    
+    sketch.geometricConstraints.addHorizontal(lines.item(2))
+    sketch.geometricConstraints.addVertical(lines.item(1))    
+    sketch.geometricConstraints.addVertical(lines.item(3))
+    
+    ## Dimensions
+#    sketch.sketchDimensions.addDistanceDimension(lines.item(0).startSketchPoint, lines.item(0).endSketchPoint,
+#                                                     adsk.fusion.DimensionOrientations.HorizontalDimensionOrientation,
+#                                                     adsk.core.Point3D.create(5.5, -1, 0));    
+    
     #Extrude feature
     extrudes = side.features.extrudeFeatures
-    prof = sketch1.profiles[0]
+    prof = sketch.profiles[0]
     sideExtrudeInput = extrudes.createInput(prof, adsk.fusion.FeatureOperations.NewBodyFeatureOperation)
     
     #Extrude params
@@ -94,18 +113,23 @@ def run(context):
         createSide("Back", "2point", -l/2, w/2, 0, l/2, w/2-t, 0, h)
         createSide("Right", "2point", l/2, w/2, 0, l/2-t, -w/2, 0, h)
         createSide("Left", "2point", -l/2, w/2, 0, -l/2+t, -w/2, 0, h)
-        createSide("Top", "center", 0, 0, h-t, l/2, -w/2, h-t, t)
+        createSide("Top", "center", 0, 0, 0, l/2, w/2, 0, t)
+        #createSide("Top", "2point", -l/2, -w/2, 0, l/2, w/2, h-t, t)
         
-        allbodies = listBody()
-        TargetBody = allbodies.item(1)
-        ToolBodies = adsk.core.ObjectCollection.create()
-        ToolBodies.add(allbodies.item(2))
-        features = rootComp.features
-        CombineCutInput = rootComp.features.combineFeatures.createInput(TargetBody, ToolBodies )
-        CombineCutFeats = features.combineFeatures
-        CombineCutInput = CombineCutFeats.createInput(TargetBody, ToolBodies)
-        CombineCutInput.operation = adsk.fusion.FeatureOperations.IntersectFeatureOperation
-        CombineCutFeats.add(CombineCutInput)
+        
+        
+#==============================================================================
+#         allbodies = listBody()
+#         TargetBody = allbodies.item(1)
+#         ToolBodies = adsk.core.ObjectCollection.create()
+#         ToolBodies.add(allbodies.item(2))
+#         features = rootComp.features
+#         CombineCutInput = rootComp.features.combineFeatures.createInput(TargetBody, ToolBodies )
+#         CombineCutFeats = features.combineFeatures
+#         CombineCutInput = CombineCutFeats.createInput(TargetBody, ToolBodies)
+#         CombineCutInput.operation = adsk.fusion.FeatureOperations.IntersectFeatureOperation
+#         CombineCutFeats.add(CombineCutInput)
+#==============================================================================
         
     except:
         if ui:

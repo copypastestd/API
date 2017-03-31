@@ -13,9 +13,9 @@ def run(context):
         # Get the Application and User Interface, used for outputting the message box to the user    
         app = adsk.core.Application.get()
         ui  = app.userInterface
-        design = app.activeProduct
         
         # Get the root component of the active design.
+        design = app.activeProduct        
         rootComp = design.rootComponent
         
         ## Create sketch 1 on the xy plane.

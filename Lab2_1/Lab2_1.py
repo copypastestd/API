@@ -16,6 +16,8 @@ def run(context):
         selectedItem1Value = selectedItem1.point
         selectedItem2 = ui.selectEntity("Select another Cilinder","CylindricalFaces")
         selectedItem2Value = selectedItem2.point
+        
+        # My code
         lenghtBetweenPoints = selectedItem1Value.distanceTo(selectedItem2Value)
         lenghtToDisplay = unitsMgr.formatInternalValue(lenghtBetweenPoints, unitsMgr.defaultLengthUnits, True)
         ui.messageBox('The length is: ' + lenghtToDisplay)
