@@ -78,7 +78,7 @@ def createSide(_name, rectangle_type, point1_x, point1_y, point1_z, point2_x, po
     
     sideFacesObj = sideExtrude.sideFaces
     sideFace = sideFacesObj.item(2)
-    sideFace.attributes.add('BOX-faces', 'FaceArea', str(sideFace.area))
+    sideFace.attributes.add('BOX-faces', 'FaceArea', str(selectedFace.area))
     areaAttrib = sideFace.attributes.itemByName('ADSK-AttribSample', 'FaceArea')
     selectedFace.attributes.add('ADSK-AttribSample', 'FaceArea', str(selectedFace.area))
 
