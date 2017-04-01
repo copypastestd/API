@@ -75,6 +75,16 @@ def createSide(_name, rectangle_type, point1_x, point1_y, point1_z, point2_x, po
     distanceSideExtrude = adsk.core.ValueInput.createByReal(ext)
     sideExtrudeInput.setDistanceExtent(False, distanceSideExtrude)
     sideExtrude = extrudes.add(sideExtrudeInput)
+    
+    sideFacesObj = sideExtrude.sideFaces
+    sideFace = sideFacesObj.item(2)
+    sideFace.attributes.add('BOX-faces', 'FaceArea', str(sideFace.area))
+    areaAttrib = sideFace.attributes.itemByName('ADSK-AttribSample', 'FaceArea')
+    selectedFace.attributes.add('ADSK-AttribSample', 'FaceArea', str(selectedFace.area))
+
+    sketch = sketches.add(sideFace)
+    lines = sketch.sketchCurves.sketchLines;
+    circle = lines.addCenterPointRectangle(adsk.core.Point3D.create(point1_x, point1_y, point1_z),adsk.core.Point3D.create(point2_x, point2_y, point2_z))    
     #Rename feature
     sideExtrude.name = _name
     
@@ -109,14 +119,11 @@ def run(context):
         
         # Method createSide: Name, rectangle type, 1th point cords, 1th point cords, Extrusion distance
         createSide("Bottom", "center", 0, 0, 0, l/2, w/2, 0, t)
-        createSide("Front", "2point", -l/2, -w/2, 0, l/2, -w/2+t, 0, h)
-        createSide("Back", "2point", -l/2, w/2, 0, l/2, w/2-t, 0, h)
-        createSide("Right", "2point", l/2, w/2, 0, l/2-t, -w/2, 0, h)
-        createSide("Left", "2point", -l/2, w/2, 0, -l/2+t, -w/2, 0, h)
-        createSide("Top", "center", 0, 0, 0, l/2, w/2, 0, t)
-        #createSide("Top", "2point", -l/2, -w/2, 0, l/2, w/2, h-t, t)
-        
-        
+#        createSide("Front", "2point", -l/2, -w/2, 0, l/2, -w/2+t, 0, h)
+#        createSide("Back", "2point", -l/2, w/2, 0, l/2, w/2-t, 0, h)
+#        createSide("Right", "2point", l/2, w/2, 0, l/2-t, -w/2, 0, h)
+#        createSide("Left", "2point", -l/2, w/2, 0, -l/2+t, -w/2, 0, h)
+#        createSide("Top", "center", 0, 0, 0, l/2, w/2, 0, t)
         
 #==============================================================================
 #         allbodies = listBody()
