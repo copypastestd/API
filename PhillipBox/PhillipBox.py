@@ -1,7 +1,7 @@
 #Author-PhilippNox
 #Description-NiceBox (Nicebox.one)
 
-import adsk.core, adsk.fusion, adsk.cam, traceback
+import adsk.core, adsk.fusion, adsk.cam, traceback, os, tempfile
 
 app = adsk.core.Application.get()
 ui  = app.userInterface
@@ -15,11 +15,11 @@ allOccs = rootComp.occurrences
 
 
 wall = 0.3
-h = 7.5
+h = 10
 w = 10
-d = 15
+d = 10
 kerf = 0.3
-shiftTotal = 0.5
+shiftTotal = 1.5
 shiftTop    = shiftTotal
 shiftBack   = shiftTotal
 shiftBottom = shiftTotal
@@ -106,10 +106,13 @@ def run(context):
         
         print(root.sketches.count)
         
+    
+        DXFForCut()
     except:
         if ui:
             ui.messageBox('Failed:\n{}'.format(traceback.format_exc()))
 
+    
 def back(offset):
 
     sketches = root.sketches
@@ -195,4 +198,70 @@ def base(offset):
     extrudeInput.setDistanceExtent(False, distExtrude)
     return extrudes.add(extrudeInput)
         
+def DXFForCut():
+    #testBody = root.bRepBodies.item(4)
+   # print (root.bRepBodies)
+    bodies = adsk.core.ObjectCollection.create()
+    for item in root.bRepBodies:
+        bodies.add.roo
+        comp_obj = face.body.parentComponent
+        sketch = comp_obj.sketches.add(face)
+        sketch.name = "DXF" + item
+        sketch_lines_world = sketch.project(face)
+    print(testBody.faces.count)
+    face = testBody.faces.item(21)
     
+    comp_obj = face.body.parentComponent
+    sketch = comp_obj.sketches.add(face)
+    sketch.name = "DXF"
+    sketch_lines_world = sketch.project(face)
+    #tmp_dir = tempfile.TemporaryDirectory()
+    #ui.messageBox(tmp_dir.name)
+    #print(tmp_dir.name)
+
+    #perimeter_dxf_path = os.path.join(tmp_dir, 'perimeter_sketch.dxf')
+    #sketch_lines_world.saveAsDXF(perimeter_dxf_path)
+    
+    #Have the table file selected.
+#    dialog = ui.createFileDialog()
+#    dialog.filter = 'DXF files (*.dxf);;All files (*.*)'
+#    dialog.initialDirectory = os.path.dirname(os.path.realpath(__file__))
+#    if dialog.showSave() != adsk.core.DialogResults.DialogOK:
+#        return
+##        
+#    filename = dialog.filename
+#    perimeter_dxf_path = os.path.join(filename, 'perimeter_sketch.dxf')
+#    print(perimeter_dxf_path)
+#    sketch_lines_world.saveAsDXF(perimeter_dxf_path)
+#    sketch_lines_world.saveAsDXF(   )
+
+#pop out file dialog to save the DXF    
+#    fileDialog = ui.createFileDialog()
+#    fileDialog.isMultiSelectEnabled = False
+#    fileDialog.title = "Export to DXF"
+#    fileDialog.filter = 'DXF files (*.dxf)'
+#    fileDialog.filterIndex = 0    
+#    dialogResult = fileDialog.showSave()
+#    if dialogResult == adsk.core.DialogResults.DialogOK:
+#        filename = fileDialog.filename
+#    else:
+#        return   
+    
+#    fileDialog = ui.createFileDialog()
+#    fileDialog.isMultiSelectEnabled = False
+#    fileDialog.title = "Export to DXF"
+#    fileDialog.filter = 'DXF files (*.dxf)'
+#    fileDialog.filterIndex = 0    
+#    dialogResult = fileDialog.showSave()
+#    if dialogResult == adsk.core.DialogResults.DialogOK:
+#        filename = fileDialog.filename
+#    else:
+#        return       
+#    
+#    sketch.saveAsDXF(filename + sketch.name + '.dxf')
+#    sketch_lines_world.name("TEST")
+#        
+#    #comp_obj.sketches.item(1).name("TEST")
+#    sketch = root.sketches.itemByName("Sketch7")
+#    sketch.name = "TEST"
+#    

@@ -1,9 +1,9 @@
 {
 	"autodeskProduct":	"Fusion360",
 	"type":	"script",
-	"author":	"copypastestd",
+	"author":	"",
 	"description":	{
-		"":	"Lab1"
+		"":	""
 	},
 	"supportedOS":	"windows|mac",
 	"editEnabled":	true

@@ -2,7 +2,6 @@
 #Description-Create bolt
 
 import adsk.core, adsk.fusion, traceback
-import math
 
 defaultBoxName = 'Box'
 defaultHeadDiameter = 0.3
@@ -217,7 +216,10 @@ class Bolt:
         self._filletRadius = value
 
     def buildBolt(self):
-        root = createNewComponent() 
+        #root = createNewComponent()
+        product = app.activeProduct
+        design = adsk.fusion.Design.cast(product)
+        root = design.rootComponent
         features = root.features
         extrudes = root.features.extrudeFeatures
         
@@ -256,14 +258,14 @@ class Bolt:
         conerBack   = d/2-wall-shiftBack        
         
     
-        base(shiftBottom,root,w,wall,conerFront,conerBack,sheetZ,sheetXBase)
-        base(h-wall-shiftTop,root,w,wall,conerFront,conerBack,sheetZ,sheetXBase)
+        base("Bottom", shiftBottom,root,w,wall,conerFront,conerBack,sheetZ,sheetXBase)
+        base("Top", h-wall-shiftTop,root,w,wall,conerFront,conerBack,sheetZ,sheetXBase)
     
-        left((w-wall)/2,root,d,h,wall)
-        left(-(w-wall)/2-wall,root,d,h,wall)
+        left("Right", (w-wall)/2,root,d,h,wall)
+        left("Left", -(w-wall)/2-wall,root,d,h,wall)
     
-        back(conerBack,root,w,wall,h,sheetXFront)
-        back(-conerFront-wall,root,w,wall,h,sheetXFront)
+        back("Front", conerBack,root,w,wall,h,sheetXFront)
+        back("Back", -conerFront-wall,root,w,wall,h,sheetXFront)
         
      
         
@@ -279,10 +281,10 @@ class Bolt:
         
         
         ToolBodies = adsk.core.ObjectCollection.create()
-        ToolBodies.add(root.bRepBodies.item(0))
-        ToolBodies.add(root.bRepBodies.item(1))
-        ToolBodies.add(root.bRepBodies.item(4))
-        ToolBodies.add(root.bRepBodies.item(5))
+        ToolBodies.add(root.bRepBodies.itemByName("Bottom"))
+        ToolBodies.add(root.bRepBodies.itemByName("Top"))
+        ToolBodies.add(root.bRepBodies.itemByName("Left"))
+        ToolBodies.add(root.bRepBodies.itemByName("Front"))
         
         CombineCutInput = root.features.combineFeatures.createInput(root.bRepBodies.item(2), ToolBodies )
         CombineCutInput.operation = adsk.fusion.FeatureOperations.CutFeatureOperation
@@ -319,11 +321,16 @@ class Bolt:
         
         print(root.sketches.count)    
         
-def back(offset,root,w,wall,h,sheetXFront):
-
+def back(_name, offset,root,w,wall,h,sheetXFront):
+    root = createNewComponent()
+    # Rename component
+    root.name = _name
+    
     sketches = root.sketches
     planeXY = root.xYConstructionPlane
     sketch = sketches.add(planeXY)
+    # Rename sketch
+    sketch.name = _name
     
     lines = sketch.sketchCurves.sketchLines   
     
@@ -344,12 +351,25 @@ def back(offset,root,w,wall,h,sheetXFront):
     extrudeInput = extrudes.createInput(profs, adsk.fusion.FeatureOperations.NewBodyFeatureOperation)
     distExtrude = adsk.core.ValueInput.createByReal(wall)   
     extrudeInput.setDistanceExtent(False, distExtrude)
+    
+#    #Rename body
+#    _body = root.bRepBodies.item(root.bRepBodies.count-1)
+#    _body.name = _name    
+    
     return extrudes.add(extrudeInput)
 
-def left(offset,root,d,h,wall):
+def left(_name, offset,root,d,h,wall):
+    root = createNewComponent()
+    
+    # Rename component
+    root.name = _name
+    
     sketches = root.sketches
     planeYZ = root.yZConstructionPlane
     sketch = sketches.add(planeYZ)
+    
+    # Rename sketch
+    sketch.name = _name
     
     lines = sketch.sketchCurves.sketchLines
     
@@ -369,10 +389,18 @@ def left(offset,root,d,h,wall):
     return extrudes.add(extrudeInput)
 
 
-def base(offset,root,w,wall,conerFront,conerBack,sheetZ,sheetXBase):
+def base(_name, offset,root,w,wall,conerFront,conerBack,sheetZ,sheetXBase):
+    root = createNewComponent()
+    
+    # Rename component
+    root.name = _name
+    
     sketches = root.sketches
     planeXZ = root.xZConstructionPlane
     sketch = sketches.add(planeXZ)
+    
+     # Rename sketch
+    sketch.name = _name    
     
     lines = sketch.sketchCurves.sketchLines
     

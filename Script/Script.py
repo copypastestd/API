@@ -4,29 +4,22 @@
 import adsk.core, adsk.fusion, adsk.cam, traceback
 
 def run(context):
-    ui = None
+    
     try:
-        product = app.activeProduct
-        design = adsk.fusion.Design.cast(product)
-        if not design:
-            ui.messageBox('It is not supported in current workspace, please change to MODEL workspace and try again.')
-            return
-        commandDefinitions = ui.commandDefinitions
-        #check the command exists or not
-        cmdDef = commandDefinitions.itemById('Bolt')
-        if not cmdDef:
-            cmdDef = commandDefinitions.addButtonDefinition('Bolt',
-                    'Create Bolt',
-                    'Create a bolt.',
-                    './resources') # relative resource file path is specified
+        app = adsk.core.Application.get()
+        ui  = app.userInterface
+        fileDialog = ui.createFileDialog()
+        fileDialog.isMultiSelectEnabled = False
+        fileDialog.title = "Select output folder"
+        fileDialog.filter = "*.dxf"
+        fileDialog.initialDirectory = "C:/"
+        dialogResult = fileDialog.showSave()
+        #path = fileDialog.filename.substring(0, fileDialog.filename.lastIndexOf('/')) + '/'
 
-        onCommandCreated = BoltCommandCreatedHandler()
-        cmdDef.commandCreated.add(onCommandCreated)
-        # keep the handler referenced beyond this function
-        handlers.append(onCommandCreated)
-        inputs = adsk.core.NamedValues.create()
-        cmdDef.execute(inputs)
-
+        if (dialogResult == adsk.core.DialogResults.DialogOK):
+            path = fileDialog.filename.substring(0, fileDialog.filename.lastIndexOf('/')) + '/'
+            
+    
         # prevent this module from being terminate when the script returns, because we are waiting for event handlers to fire
         adsk.autoTerminate(False)
 
