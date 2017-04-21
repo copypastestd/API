@@ -33,7 +33,7 @@ def run(context):
         lines = sketch.sketchCurves.sketchLines
         
         line1 = lines.addByTwoPoints(adsk.core.Point3D.create(1, 1, 0), adsk.core.Point3D.create(30, 1, 0)) #horizontal
-        #line1 = lines.addByTwoPoints(adsk.core.Point3D.create(1, 1, 0), adsk.core.Point3D.create(1, 3, 0)) #vertical
+        #line1 = lines.addByTwoPoints(adsk.core.Point3D.create(1, 1, 0), adsk.core.Point3D.create(1, 10, 0)) #vertical
         
         # Get sketch points
         sketchPoints = sketch.sketchPoints        
