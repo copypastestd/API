@@ -561,8 +561,8 @@ def run(context):
         cmdDef = commandDefinitions.itemById('Bolt')
         if not cmdDef:
             cmdDef = commandDefinitions.addButtonDefinition('Bolt',
-                    'Create Bolt',
-                    'Create a bolt.',
+                    'Create Box',
+                    'Create a box.',
                     './resources') # relative resource file path is specified
 
         onCommandCreated = BoxCommandCreatedHandler()
