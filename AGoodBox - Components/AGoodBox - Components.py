@@ -59,7 +59,7 @@ class BoxCommandExecuteHandler(adsk.core.CommandEventHandler):
             command = args.firingEvent.sender
             inputs = command.commandInputs
 
-            box = Box()
+            box = BOX()
             for input in inputs:
                 if input.id == 'boxName':
                     box.boxName = input.value
@@ -150,7 +150,7 @@ class BoxCommandCreatedHandler(adsk.core.CommandCreatedEventHandler):
             if ui:
                 ui.messageBox('Failed:\n{}'.format(traceback.format_exc()))
 
-class Box:
+class BOX:
     def __init__(self):
         self._boxName = defaultBoxName
         self._wall = defaultWall
@@ -558,9 +558,9 @@ def run(context):
             return
         commandDefinitions = ui.commandDefinitions
         #check the command exists or not
-        cmdDef = commandDefinitions.itemById('Bolt')
+        cmdDef = commandDefinitions.itemById('BOX')
         if not cmdDef:
-            cmdDef = commandDefinitions.addButtonDefinition('Bolt',
+            cmdDef = commandDefinitions.addButtonDefinition('BOX',
                     'Create Box',
                     'Create a box.',
                     './resources') # relative resource file path is specified
