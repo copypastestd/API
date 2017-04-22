@@ -3,7 +3,6 @@
 
 
 import adsk.core, adsk.fusion, traceback
-import math
 
 defaultBoxName = 'Box'
 defaultWall = 0.3
@@ -51,7 +50,7 @@ def createNewComponent():
     newOcc = allOccs.addNewComponent(adsk.core.Matrix3D.create())
     return newOcc.component
 
-class BoltCommandExecuteHandler(adsk.core.CommandEventHandler):
+class BoxCommandExecuteHandler(adsk.core.CommandEventHandler):
     def __init__(self):
         super().__init__()
     def notify(self, args):
@@ -60,30 +59,30 @@ class BoltCommandExecuteHandler(adsk.core.CommandEventHandler):
             command = args.firingEvent.sender
             inputs = command.commandInputs
 
-            bolt = Bolt()
+            box = Box()
             for input in inputs:
-                if input.id == 'boltName':
-                    bolt.boltName = input.value
+                if input.id == 'boxName':
+                    box.boxName = input.value
                 elif input.id == 'wall':
-                    bolt.wall = unitsMgr.evaluateExpression(input.expression, "cm")
+                    box.wall = unitsMgr.evaluateExpression(input.expression, "cm")
                 elif input.id == 'height':
-                    bolt.h = unitsMgr.evaluateExpression(input.expression, "cm")
+                    box.h = unitsMgr.evaluateExpression(input.expression, "cm")
                 elif input.id == 'w':
-                    bolt.w = unitsMgr.evaluateExpression(input.expression, "cm")
+                    box.w = unitsMgr.evaluateExpression(input.expression, "cm")
                 elif input.id == 'd':
-                    bolt.d = unitsMgr.evaluateExpression(input.expression, "cm")
+                    box.d = unitsMgr.evaluateExpression(input.expression, "cm")
                 elif input.id == 'kerf':
-                    bolt.kerf = unitsMgr.evaluateExpression(input.expression, "cm") 
+                    box.kerf = unitsMgr.evaluateExpression(input.expression, "cm") 
                 elif input.id == 'shiftTotal':
-                    bolt.shiftTotal = unitsMgr.evaluateExpression(input.expression, "cm")
-                    bolt.shiftTop = unitsMgr.evaluateExpression(input.expression, "cm")
-                    bolt.shiftBack = unitsMgr.evaluateExpression(input.expression, "cm")                    
-                    bolt.shiftFront = unitsMgr.evaluateExpression(input.expression, "cm")
-                    bolt.shiftBottom = unitsMgr.evaluateExpression(input.expression, "cm")
+                    box.shiftTotal = unitsMgr.evaluateExpression(input.expression, "cm")
+                    box.shiftTop = unitsMgr.evaluateExpression(input.expression, "cm")
+                    box.shiftBack = unitsMgr.evaluateExpression(input.expression, "cm")                    
+                    box.shiftFront = unitsMgr.evaluateExpression(input.expression, "cm")
+                    box.shiftBottom = unitsMgr.evaluateExpression(input.expression, "cm")
                 elif input.id == 'sheetAlpha':
-                    bolt.sheetAlpha = unitsMgr.evaluateExpression(input.expression, "cm")
+                    box.sheetAlpha = unitsMgr.evaluateExpression(input.expression, "cm")
 
-            bolt.buildBolt();
+            box.buildBox();
             args.isValidResult = True
 
         except:
@@ -91,7 +90,7 @@ class BoltCommandExecuteHandler(adsk.core.CommandEventHandler):
                 #ui.messageBox('Failed:\n{}'.format(traceback.format_exc()))
                 print('Failed:\n{}'.format(traceback.format_exc()))
 
-class BoltCommandDestroyHandler(adsk.core.CommandEventHandler):
+class BoxCommandDestroyHandler(adsk.core.CommandEventHandler):
     def __init__(self):
         super().__init__()
     def notify(self, args):
@@ -103,18 +102,18 @@ class BoltCommandDestroyHandler(adsk.core.CommandEventHandler):
             if ui:
                 ui.messageBox('Failed:\n{}'.format(traceback.format_exc()))
 
-class BoltCommandCreatedHandler(adsk.core.CommandCreatedEventHandler):    
+class BoxCommandCreatedHandler(adsk.core.CommandCreatedEventHandler):    
     def __init__(self):
         super().__init__()        
     def notify(self, args):
         try:
             cmd = args.command
             cmd.isRepeatable = False
-            onExecute = BoltCommandExecuteHandler()
+            onExecute = BoxCommandExecuteHandler()
             cmd.execute.add(onExecute)
-            onExecutePreview = BoltCommandExecuteHandler()
+            onExecutePreview = BoxCommandExecuteHandler()
             cmd.executePreview.add(onExecutePreview)
-            onDestroy = BoltCommandDestroyHandler()
+            onDestroy = BoxCommandDestroyHandler()
             cmd.destroy.add(onDestroy)
             # keep the handler referenced beyond this function
             handlers.append(onExecute)
@@ -123,7 +122,7 @@ class BoltCommandCreatedHandler(adsk.core.CommandCreatedEventHandler):
 
             #define the inputs
             inputs = cmd.commandInputs
-            inputs.addStringValueInput('boltName', 'Blot Name', defaultBoxName)
+            inputs.addStringValueInput('boxName', 'Box Name', defaultBoxName)
 
             initWall = adsk.core.ValueInput.createByReal(defaultWall)
             inputs.addValueInput('wall', 'Wall','cm',initWall)
@@ -151,7 +150,7 @@ class BoltCommandCreatedHandler(adsk.core.CommandCreatedEventHandler):
             if ui:
                 ui.messageBox('Failed:\n{}'.format(traceback.format_exc()))
 
-class Bolt:
+class Box:
     def __init__(self):
         self._boxName = defaultBoxName
         self._wall = defaultWall
@@ -169,10 +168,10 @@ class Bolt:
 
     #properties
     @property
-    def boltName(self):
+    def boxName(self):
         return self._boxName
-    @boltName.setter
-    def boltName(self, value):
+    @boxName.setter
+    def boxName(self, value):
         self._boxName = value
 
     @property
@@ -252,7 +251,7 @@ class Bolt:
     def sheetAlpha(self, value):
         self._sheetAlpha = value
 
-    def buildBolt(self):
+    def buildBox(self):
         root = createNewComponent() 
         features = root.features
         extrudes = root.features.extrudeFeatures
@@ -566,7 +565,7 @@ def run(context):
                     'Create a bolt.',
                     './resources') # relative resource file path is specified
 
-        onCommandCreated = BoltCommandCreatedHandler()
+        onCommandCreated = BoxCommandCreatedHandler()
         cmdDef.commandCreated.add(onCommandCreated)
         # keep the handler referenced beyond this function
         handlers.append(onCommandCreated)
