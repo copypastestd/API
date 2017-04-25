@@ -13,26 +13,6 @@ defaultKerf = 0.03
 defaultShiftTotal = 1
 defaultSheetAlpha = 0.3
 
-#wall = self.wall
-#h = self.h
-#w = self.w
-#d = self.d
-#kerf = self.kerf
-#shiftTotal = self.shiftTotal
-#shiftTop    = shiftTotal
-#shiftBack   = shiftTotal
-#shiftBottom = shiftTotal
-#shiftFront  = shiftTotal
-#sheetAlpha = self.sheetAlpha
-
-#wall = 0.3
-#h = 10
-#w = 10
-#d = 10
-#kerf = 0.3
-#shiftTotal = 1.5
-#sheetAlpha = 0.3
-
 # global set of event handlers to keep them referenced for the duration of the command
 handlers = []
 app = adsk.core.Application.get()
@@ -40,6 +20,9 @@ if app:
     ui = app.userInterface
 
 newComp = None
+
+product = app.activeProduct
+design = adsk.fusion.Design.cast(product)
 
 def createNewComponent():
     # Get the active design.
@@ -126,8 +109,9 @@ class BoxCommandCreatedHandler(adsk.core.CommandCreatedEventHandler):
 
             initWall = adsk.core.ValueInput.createByReal(defaultWall)
             inputs.addValueInput('wall', 'Wall','cm',initWall)
-
-            initH = adsk.core.ValueInput.createByReal(defaultH)
+            
+            initH = adsk.core.ValueInput.createByReal(defaultH)      
+            #initH = adsk.core.ValueInput.createByReal(design.userParameters.itemByName(defaultH)) 
             inputs.addValueInput('height', 'Height', 'cm', initH)
 
             initW = adsk.core.ValueInput.createByReal(defaultW)
@@ -155,6 +139,7 @@ class BOX:
         self._boxName = defaultBoxName
         self._wall = defaultWall
         self._h = defaultH
+        #self._h = design.rootComponent.modelParameters.itemByName('defaultH')
         self._w = defaultW
         self._d = adsk.core.ValueInput.createByReal(defaultD)
         self._kerf = defaultKerf
@@ -270,19 +255,6 @@ class BOX:
         
         sheetAlpha = self.sheetAlpha
         
-        
-        #wall = self.wall
-        #h = self.h
-        #w = self.w
-        #d = self.d
-        #kerf = self.kerf
-        #shiftTotal = self.shiftTotal
-        #shiftTop    = shiftTotal
-        #shiftBack   = shiftTotal
-        #shiftBottom = shiftTotal
-        #shiftFront  = shiftTotal
-        #sheetAlpha = self.sheetAlpha
-        
         sheetZ = (w-2*wall)*sheetAlpha/2                              #2
         sheetXBase = (d-2*wall-shiftFront-shiftBack)*sheetAlpha/2     #1
         sheetXFront = (h-2*wall-shiftTop-shiftBottom)*sheetAlpha/2    #1
@@ -293,16 +265,10 @@ class BOX:
     
         base(shiftBottom,root,w,wall,conerFront,conerBack,sheetZ,sheetXBase)
         base(h-wall-shiftTop,root,w,wall,conerFront,conerBack,sheetZ,sheetXBase)
-    
-        #left((w-wall)/2,root,d,h,wall)
-        #left(-(w-wall)/2-wall,root,d,h,wall)
-        
+            
         self.left((w-wall)/2,       root,sheetXBase,sheetXFront)
         self.left(-(w-wall)/2-wall, root,sheetXBase,sheetXFront)
-    
-        #back(conerBack,root,w,wall,h,sheetXFront)
-        #back(-conerFront-wall,root,w,wall,h,sheetXFront)
-        
+            
         self.back(conerBack,        root,sheetXFront,sheetZ)
         self.back(-conerFront-wall, root,sheetXFront,sheetZ)
      
@@ -457,58 +423,97 @@ class BOX:
         extrudeInput.setDistanceExtent(False, distExtrude)
         return extrudes.add(extrudeInput)
         
-def back(offset,root,w,wall,h,sheetXFront):
+#    def base(self, offset,root,w,wall,conerFront,conerBack,sheetZ,sheetXBase):
+#        sketches = root.sketches
+#        planeXZ = root.xZConstructionPlane
+#        sketch = sketches.add(planeXZ)
+#        
+#        lines = sketch.sketchCurves.sketchLines
+#        
+#        
+#          
+#        #   half of base from origin to front
+#        lines.addTwoPointRectangle(adsk.core.Point3D.create(-(self.w-self.wall)/2,0,offset),adsk.core.Point3D.create((self.w-self.wall)/2,self.conerFront,offset))
+#        #   half of base from origin to back        
+#        lines.addTwoPointRectangle(adsk.core.Point3D.create(-(self.w-self.wall)/2,0,offset),adsk.core.Point3D.create((self.w-self.wall)/2,-self.conerBack,offset))
+#        # sheetZ for front
+#        lines.addCenterPointRectangle(adsk.core.Point3D.create(0,self.conerFront,offset),adsk.core.Point3D.create(sheetZ,self.conerFront-self.wall,offset))
+#        # sheetZ for back
+#        lines.addCenterPointRectangle(adsk.core.Point3D.create(0,-self.conerBack,offset),adsk.core.Point3D.create(sheetZ,-self.conerBack-self.wall,offset))
+#        # sheetXBase for left
+#        lines.addCenterPointRectangle(adsk.core.Point3D.create(-(self.w-self.wall)/2,0,offset),adsk.core.Point3D.create((-(self.w-self.wall)/2)-self.wall,sheetXBase,offset))   
+#        # sheetXBase for Rigth
+#        lines.addCenterPointRectangle(adsk.core.Point3D.create((self.w-self.wall)/2,0,offset),adsk.core.Point3D.create(((self.w-self.wall)/2)+self.wall,sheetXBase,offset))   
+#        
+#        lines.addCenterPointRectangle(adsk.core.Point3D.create(0,0,offset),adsk.core.Point3D.create(2,2,offset))  
+#            
+#        
+#        extrudes = root.features.extrudeFeatures
+#        #prof = sketch.profiles[0]
+#        
+#        profs = adsk.core.ObjectCollection.create()
+#            
+#        for prof in sketch.profiles:
+#            profs.add(prof)
+#            
+#        extrudeInput = extrudes.createInput(profs, adsk.fusion.FeatureOperations.NewBodyFeatureOperation)
+#        distExtrude = adsk.core.ValueInput.createByReal(self.wall)   
+#        extrudeInput.setDistanceExtent(False, distExtrude)
+#        return extrudes.add(extrudeInput)
+        
+        
+#def back(offset,root,w,wall,h,sheetXFront):
+#
+#    sketches = root.sketches
+#    planeXY = root.xYConstructionPlane
+#    sketch = sketches.add(planeXY)
+#    
+#    lines = sketch.sketchCurves.sketchLines   
+#    
+#    lines.addTwoPointRectangle(adsk.core.Point3D.create(-(w-wall)/2,h,offset),adsk.core.Point3D.create((w-wall)/2,0,offset))
+#    # sheetXFront for left
+#    lines.addCenterPointRectangle(adsk.core.Point3D.create(-(w-wall)/2,h/2,offset),adsk.core.Point3D.create(-(w-wall)/2-wall,h/2+sheetXFront,offset))
+#    # sheetXFront for Rigth
+#    lines.addCenterPointRectangle(adsk.core.Point3D.create((w-wall)/2,h/2,offset),adsk.core.Point3D.create((w-wall)/2+wall,h/2+sheetXFront,offset))
+#    
+#    extrudes = root.features.extrudeFeatures
+#    #prof = sketch.profiles[0]
+#    
+#    profs = adsk.core.ObjectCollection.create()
+#        
+#    for prof in sketch.profiles:
+#        profs.add(prof)
+#        
+#    extrudeInput = extrudes.createInput(profs, adsk.fusion.FeatureOperations.NewBodyFeatureOperation)
+#    distExtrude = adsk.core.ValueInput.createByReal(wall)   
+#    extrudeInput.setDistanceExtent(False, distExtrude)
+#    return extrudes.add(extrudeInput)
 
-    sketches = root.sketches
-    planeXY = root.xYConstructionPlane
-    sketch = sketches.add(planeXY)
-    
-    lines = sketch.sketchCurves.sketchLines   
-    
-    lines.addTwoPointRectangle(adsk.core.Point3D.create(-(w-wall)/2,h,offset),adsk.core.Point3D.create((w-wall)/2,0,offset))
-    # sheetXFront for left
-    lines.addCenterPointRectangle(adsk.core.Point3D.create(-(w-wall)/2,h/2,offset),adsk.core.Point3D.create(-(w-wall)/2-wall,h/2+sheetXFront,offset))
-    # sheetXFront for Rigth
-    lines.addCenterPointRectangle(adsk.core.Point3D.create((w-wall)/2,h/2,offset),adsk.core.Point3D.create((w-wall)/2+wall,h/2+sheetXFront,offset))
-    
-    extrudes = root.features.extrudeFeatures
-    #prof = sketch.profiles[0]
-    
-    profs = adsk.core.ObjectCollection.create()
-        
-    for prof in sketch.profiles:
-        profs.add(prof)
-        
-    extrudeInput = extrudes.createInput(profs, adsk.fusion.FeatureOperations.NewBodyFeatureOperation)
-    distExtrude = adsk.core.ValueInput.createByReal(wall)   
-    extrudeInput.setDistanceExtent(False, distExtrude)
-    return extrudes.add(extrudeInput)
-
-def left(offset,root,d,h,wall):
-    sketches = root.sketches
-    planeYZ = root.yZConstructionPlane
-    sketch = sketches.add(planeYZ)
-    
-    lines = sketch.sketchCurves.sketchLines
-    
-    lines.addTwoPointRectangle(adsk.core.Point3D.create(d/2,h,offset),adsk.core.Point3D.create(-d/2,0,offset))
-    
-    #axe = 1+wall/2     
-    #lines.addCenterPointRectangle(adsk.core.Point3D.create(0,shiftBottom+wall/2,offset),adsk.core.Point3D.create((d-2*wall-shiftFront-shiftBack)*sheetAlpha/2,1+wall/2+wall/2,offset))
-    lines.addCenterPointRectangle(adsk.core.Point3D.create(0,1+wall/2,offset),adsk.core.Point3D.create((d-2*wall-1-1)*0.3/2,1+wall,offset))
-    
-    extrudes = root.features.extrudeFeatures
-    #prof = sketch.profiles[0]
-    
-    profs = adsk.core.ObjectCollection.create()
-        
-    for prof in sketch.profiles:
-        profs.add(prof)
-        
-    extrudeInput = extrudes.createInput(profs, adsk.fusion.FeatureOperations.NewBodyFeatureOperation)
-    distExtrude = adsk.core.ValueInput.createByReal(wall)   
-    extrudeInput.setDistanceExtent(False, distExtrude)
-    return extrudes.add(extrudeInput)
+#def left(offset,root,d,h,wall):
+#    sketches = root.sketches
+#    planeYZ = root.yZConstructionPlane
+#    sketch = sketches.add(planeYZ)
+#    
+#    lines = sketch.sketchCurves.sketchLines
+#    
+#    lines.addTwoPointRectangle(adsk.core.Point3D.create(d/2,h,offset),adsk.core.Point3D.create(-d/2,0,offset))
+#    
+#    #axe = 1+wall/2     
+#    #lines.addCenterPointRectangle(adsk.core.Point3D.create(0,shiftBottom+wall/2,offset),adsk.core.Point3D.create((d-2*wall-shiftFront-shiftBack)*sheetAlpha/2,1+wall/2+wall/2,offset))
+#    lines.addCenterPointRectangle(adsk.core.Point3D.create(0,1+wall/2,offset),adsk.core.Point3D.create((d-2*wall-1-1)*0.3/2,1+wall,offset))
+#    
+#    extrudes = root.features.extrudeFeatures
+#    #prof = sketch.profiles[0]
+#    
+#    profs = adsk.core.ObjectCollection.create()
+#        
+#    for prof in sketch.profiles:
+#        profs.add(prof)
+#        
+#    extrudeInput = extrudes.createInput(profs, adsk.fusion.FeatureOperations.NewBodyFeatureOperation)
+#    distExtrude = adsk.core.ValueInput.createByReal(wall)   
+#    extrudeInput.setDistanceExtent(False, distExtrude)
+#    return extrudes.add(extrudeInput)
 
 
 def base(offset,root,w,wall,conerFront,conerBack,sheetZ,sheetXBase):
@@ -548,11 +553,24 @@ def base(offset,root,w,wall,conerFront,conerBack,sheetZ,sheetXBase):
     distExtrude = adsk.core.ValueInput.createByReal(wall)   
     extrudeInput.setDistanceExtent(False, distExtrude)
     return extrudes.add(extrudeInput)
-            
+
+def userParams():
+    
+    # ToDo - ДОБАВИТЬ ПРОВЕРКУ   
+    design.userParameters.add('defaultBoxName', adsk.core.ValueInput.createByString(defaultBoxName), "", "Box name")
+    design.userParameters.add('defaultWall', adsk.core.ValueInput.createByReal(0.03), "cm", "Wall thickness")
+    design.userParameters.add('defaultH', adsk.core.ValueInput.createByReal(30), "cm", "Height")
+    design.userParameters.add('defaultW', adsk.core.ValueInput.createByReal(10), "cm", "Width")
+    design.userParameters.add('defaultD', adsk.core.ValueInput.createByReal(10), "cm", "Depth")
+    design.userParameters.add('defaultKerf', adsk.core.ValueInput.createByReal(0.03), "cm", "Kerf")    
+    design.userParameters.add('defaultShiftTotal', adsk.core.ValueInput.createByReal(1), "cm", "Shift total") 
+    design.userParameters.add('defaultSheetAlpha', adsk.core.ValueInput.createByReal(0.3), "cm", "Sheet Alpha")
+    
 def run(context):
     try:
-        product = app.activeProduct
-        design = adsk.fusion.Design.cast(product)
+        
+        userParams()
+        
         if not design:
             ui.messageBox('It is not supported in current workspace, please change to MODEL workspace and try again.')
             return
@@ -571,7 +589,7 @@ def run(context):
         handlers.append(onCommandCreated)
         inputs = adsk.core.NamedValues.create()
         cmdDef.execute(inputs)
-
+   
         # prevent this module from being terminate when the script returns, because we are waiting for event handlers to fire
         adsk.autoTerminate(False)
     except:
