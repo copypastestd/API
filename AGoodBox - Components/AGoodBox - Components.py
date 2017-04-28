@@ -262,14 +262,14 @@ class BOX:
         conerFront  = d/2-wall-shiftFront #-(wall-kerf)
         conerBack   = d/2-wall-shiftBack        
         
-        self.base(shiftBottom,root,conerFront,conerBack,sheetZ,sheetXBase)
-        self.base(h-wall-shiftTop,root,conerFront,conerBack,sheetZ,sheetXBase)
+        self.bot_top("Bottom",shiftBottom,root,conerFront,conerBack,sheetZ,sheetXBase)
+        self.bot_top("Top",h-wall-shiftTop,root,conerFront,conerBack,sheetZ,sheetXBase)
             
-        self.left((w-wall)/2,       root,sheetXBase,sheetXFront)
-        self.left(-(w-wall)/2-wall, root,sheetXBase,sheetXFront)
+        self.left_right("Left",(w-wall)/2,       root,sheetXBase,sheetXFront)
+        self.left_right("Right",-(w-wall)/2-wall, root,sheetXBase,sheetXFront)
             
-        self.back(conerBack,        root,sheetXFront,sheetZ)
-        self.back(-conerFront-wall, root,sheetXFront,sheetZ)
+        self.front_back("Back",conerBack,        root,sheetXFront,sheetZ)
+        self.front_back("Front",-conerFront-wall, root,sheetXFront,sheetZ)
      
         
         
@@ -325,14 +325,16 @@ class BOX:
         print(root.sketches.count)    
     
     
-    def left(self,offset,root,sheetXBase,sheetXFront):
-        _name = "Left"
+    def left_right(self,_name,offset,root,sheetXBase,sheetXFront):
+        #Component rename
         side = createNewComponent() 
         side.name = _name
         
+        #Sketch rename
         sketches = side.sketches
         planeYZ = side.yZConstructionPlane
         sketch = sketches.add(planeYZ)
+        sketch.name = _name
         
         lines = sketch.sketchCurves.sketchLines
         
@@ -381,12 +383,25 @@ class BOX:
         extrudeInput = extrudes.createInput(profs, adsk.fusion.FeatureOperations.NewBodyFeatureOperation)
         distExtrude = adsk.core.ValueInput.createByReal(self.wall)   
         extrudeInput.setDistanceExtent(False, distExtrude)
-        return extrudes.add(extrudeInput)
         
-    def back(self,offset,root,sheetXFront,sheetZ):
+        #Extrude rename
+        sideExtrude = extrudes.add(extrudeInput)
+        sideExtrude.name = _name
         
-        sketches = root.sketches
-        planeXY = root.xYConstructionPlane
+        #Body rename
+        sideBody = side.bRepBodies.item(side.bRepBodies.count-1)
+        sideBody.name = _name  
+    
+        return sideExtrude
+        
+    def front_back(self,_name,offset,root,sheetXFront,sheetZ):
+        #Component rename
+        side = createNewComponent() 
+        side.name = _name        
+             
+        #Sketch rename
+        sketches = side.sketches
+        planeXY = side.xYConstructionPlane
         sketch = sketches.add(planeXY)
         
         lines = sketch.sketchCurves.sketchLines   
@@ -413,7 +428,7 @@ class BOX:
                                                                 self.h-self.shiftTop-self.wall/2    +(self.wall-self.kerf)/2,      \
                                                                 offset))
                                                                 
-        extrudes = root.features.extrudeFeatures
+        extrudes = side.features.extrudeFeatures
         #prof = sketch.profiles[0]
         
         profs = adsk.core.ObjectCollection.create()
@@ -424,11 +439,25 @@ class BOX:
         extrudeInput = extrudes.createInput(profs, adsk.fusion.FeatureOperations.NewBodyFeatureOperation)
         distExtrude = adsk.core.ValueInput.createByReal(self.wall)   
         extrudeInput.setDistanceExtent(False, distExtrude)
-        return extrudes.add(extrudeInput)
         
-    def base(self,offset,root,conerFront,conerBack,sheetZ,sheetXBase):
-        sketches = root.sketches
-        planeXZ = root.xZConstructionPlane
+        #Extrude rename
+        sideExtrude = extrudes.add(extrudeInput)
+        sideExtrude.name = _name        
+        
+        #Body rename
+        sideBody = side.bRepBodies.item(side.bRepBodies.count-1)
+        sideBody.name = _name 
+        
+        return sideExtrude
+        
+    def bot_top(self,_name,offset,root,conerFront,conerBack,sheetZ,sheetXBase):
+        #Component rename
+        side = createNewComponent() 
+        side.name = _name  
+        
+        #Sketch rename
+        sketches = side.sketches
+        planeXZ = side.xZConstructionPlane
         sketch = sketches.add(planeXZ)
         
         lines = sketch.sketchCurves.sketchLines
@@ -449,7 +478,7 @@ class BOX:
         lines.addCenterPointRectangle(adsk.core.Point3D.create(0,0,offset),adsk.core.Point3D.create(2,2,offset))  
             
         
-        extrudes = root.features.extrudeFeatures
+        extrudes = side.features.extrudeFeatures
         #prof = sketch.profiles[0]
         
         profs = adsk.core.ObjectCollection.create()
@@ -460,7 +489,16 @@ class BOX:
         extrudeInput = extrudes.createInput(profs, adsk.fusion.FeatureOperations.NewBodyFeatureOperation)
         distExtrude = adsk.core.ValueInput.createByReal(self.wall)   
         extrudeInput.setDistanceExtent(False, distExtrude)
-        return extrudes.add(extrudeInput)
+        
+        #Extrude rename
+        sideExtrude = extrudes.add(extrudeInput)
+        sideExtrude.name = _name        
+        
+        #Body rename
+        sideBody = side.bRepBodies.item(side.bRepBodies.count-1)
+        sideBody.name = _name         
+        
+        return sideExtrude
 
 def userParams():
     
