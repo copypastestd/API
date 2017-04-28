@@ -24,14 +24,17 @@ newComp = None
 product = app.activeProduct
 design = adsk.fusion.Design.cast(product)
 
-def createNewComponent():
-    # Get the active design.
-    product = app.activeProduct
-    design = adsk.fusion.Design.cast(product)
-    rootComp = design.rootComponent
+def createNewComponent(rootComp):
     allOccs = rootComp.occurrences
     newOcc = allOccs.addNewComponent(adsk.core.Matrix3D.create())
     return newOcc.component
+
+#def createNewComponent():
+#    # Get the active design.
+#    rootComp = design.rootComponent
+#    allOccs = rootComp.occurrences
+#    newOcc = allOccs.addNewComponent(adsk.core.Matrix3D.create())
+#    return newOcc.component
 
 class BoxCommandExecuteHandler(adsk.core.CommandEventHandler):
     def __init__(self):
@@ -237,7 +240,9 @@ class BOX:
         self._sheetAlpha = value
 
     def buildBox(self):
-        root = createNewComponent() 
+        rootComp = design.rootComponent
+        root = createNewComponent(rootComp)
+        root.name = defaultBoxName 
         features = root.features
         extrudes = root.features.extrudeFeatures
         
@@ -327,7 +332,7 @@ class BOX:
     
     def left_right(self,_name,offset,root,sheetXBase,sheetXFront):
         #Component rename
-        side = createNewComponent() 
+        side = createNewComponent(root) 
         side.name = _name
         
         #Sketch rename
@@ -396,13 +401,14 @@ class BOX:
         
     def front_back(self,_name,offset,root,sheetXFront,sheetZ):
         #Component rename
-        side = createNewComponent() 
+        side = createNewComponent(root) 
         side.name = _name        
              
         #Sketch rename
         sketches = side.sketches
         planeXY = side.xYConstructionPlane
         sketch = sketches.add(planeXY)
+        sketch.name = _name
         
         lines = sketch.sketchCurves.sketchLines   
         
@@ -452,13 +458,14 @@ class BOX:
         
     def bot_top(self,_name,offset,root,conerFront,conerBack,sheetZ,sheetXBase):
         #Component rename
-        side = createNewComponent() 
+        side = createNewComponent(root) 
         side.name = _name  
         
         #Sketch rename
         sketches = side.sketches
         planeXZ = side.xZConstructionPlane
         sketch = sketches.add(planeXZ)
+        sketch.name = _name         
         
         lines = sketch.sketchCurves.sketchLines
         
