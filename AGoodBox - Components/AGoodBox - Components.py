@@ -29,13 +29,6 @@ def createNewComponent(rootComp):
     newOcc = allOccs.addNewComponent(adsk.core.Matrix3D.create())
     return newOcc.component
 
-#def createNewComponent():
-#    # Get the active design.
-#    rootComp = design.rootComponent
-#    allOccs = rootComp.occurrences
-#    newOcc = allOccs.addNewComponent(adsk.core.Matrix3D.create())
-#    return newOcc.component
-
 class BoxCommandExecuteHandler(adsk.core.CommandEventHandler):
     def __init__(self):
         super().__init__()
@@ -277,7 +270,7 @@ class BOX:
         self.front_back("Front",-conerFront-wall, root,sheetXFront,sheetZ)
      
         
-        
+        #TO-DELETE
         print(root.bRepBodies.count)
         
         
@@ -507,22 +500,42 @@ class BOX:
         
         return sideExtrude
 
+# Add data to User Parameters
 def userParams():
     
     # ToDo - ДОБАВИТЬ ПРОВЕРКУ   
-    design.userParameters.add('defaultBoxName', adsk.core.ValueInput.createByString(defaultBoxName), "", "Box name")
-    design.userParameters.add('defaultWall', adsk.core.ValueInput.createByReal(0.03), "cm", "Wall thickness")
-    design.userParameters.add('defaultH', adsk.core.ValueInput.createByReal(30), "cm", "Height")
-    design.userParameters.add('defaultW', adsk.core.ValueInput.createByReal(10), "cm", "Width")
-    design.userParameters.add('defaultD', adsk.core.ValueInput.createByReal(10), "cm", "Depth")
-    design.userParameters.add('defaultKerf', adsk.core.ValueInput.createByReal(0.03), "cm", "Kerf")    
-    design.userParameters.add('defaultShiftTotal', adsk.core.ValueInput.createByReal(1), "cm", "Shift total") 
-    design.userParameters.add('defaultSheetAlpha', adsk.core.ValueInput.createByReal(0.3), "cm", "Sheet Alpha")
+    if not paramExists(design, 'defaultBoxName'):
+        design.userParameters.add('defaultBoxName', adsk.core.ValueInput.createByString(defaultBoxName), "", "Box name")
+    if not paramExists(design, 'defaultWall'):
+        design.userParameters.add('defaultWall', adsk.core.ValueInput.createByReal(0.03), "cm", "Wall thickness")
+    if not paramExists(design, 'defaultH'):
+        design.userParameters.add('defaultH', adsk.core.ValueInput.createByReal(30), "cm", "Height")
+    if not paramExists(design, 'defaultW'):
+        design.userParameters.add('defaultW', adsk.core.ValueInput.createByReal(10), "cm", "Width")
+    if not paramExists(design, 'defaultD'):
+        design.userParameters.add('defaultD', adsk.core.ValueInput.createByReal(10), "cm", "Depth")
+    if not paramExists(design, 'defaultKerf'):
+        design.userParameters.add('defaultKerf', adsk.core.ValueInput.createByReal(0.03), "cm", "Kerf")
+    if not paramExists(design, 'defaultShiftTotal'):
+        design.userParameters.add('defaultShiftTotal', adsk.core.ValueInput.createByReal(1), "cm", "Shift total")
+    if not paramExists(design, 'defaultSheetAlpha'):
+        design.userParameters.add('defaultSheetAlpha', adsk.core.ValueInput.createByReal(0.3), "cm", "Sheet Alpha")
+    
+# Check if some user parameter exist or not  
+def paramExists(design, paramName):
+    # Try to get the parameter with the specified name.
+    param = design.userParameters.itemByName(paramName)            
+    
+    # Check to see if a parameter was returned.
+    if param:
+        return True
+    else:
+        return False    
     
 def run(context):
     try:
         
-        #userParams()
+        userParams()
         
         if not design:
             ui.messageBox('It is not supported in current workspace, please change to MODEL workspace and try again.')
