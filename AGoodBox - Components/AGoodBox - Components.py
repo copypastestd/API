@@ -102,8 +102,12 @@ class BoxCommandCreatedHandler(adsk.core.CommandCreatedEventHandler):
             #define the inputs
             inputs = cmd.commandInputs
             inputs.addStringValueInput('boxName', 'Box Name', defaultBoxName)
-
+            
+            #print(design.userParameters.itemByName('defaultWall'))
+            #print('test') 
+            
             initWall = adsk.core.ValueInput.createByReal(defaultWall)
+            #initWall = adsk.core.ValueInput.createByReal(design.userParameters.itemByName('defaultWall').value)
             inputs.addValueInput('wall', 'Wall','cm',initWall)
             
             initH = adsk.core.ValueInput.createByReal(defaultH)      
@@ -263,60 +267,79 @@ class BOX:
         self.bot_top("Bottom",shiftBottom,root,conerFront,conerBack,sheetZ,sheetXBase)
         self.bot_top("Top",h-wall-shiftTop,root,conerFront,conerBack,sheetZ,sheetXBase)
             
-        self.left_right("Left",(w-wall)/2,       root,sheetXBase,sheetXFront)
-        self.left_right("Right",-(w-wall)/2-wall, root,sheetXBase,sheetXFront)
+        self.left_right("Right",(w-wall)/2,       root,sheetXBase,sheetXFront)
+        self.left_right("Left",-(w-wall)/2-wall, root,sheetXBase,sheetXFront)
             
         self.front_back("Back",conerBack,        root,sheetXFront,sheetZ)
         self.front_back("Front",-conerFront-wall, root,sheetXFront,sheetZ)
      
         
         #TO-DELETE
-        print(root.bRepBodies.count)
+        #print(root.bRepBodies.count)
         
         
         
         #Cut
         CombineCutFeats = features.combineFeatures          
         
-        #Cut Rigth
-        
         
         ToolBodies = adsk.core.ObjectCollection.create()
-        ToolBodies.add(root.bRepBodies.item(0))
-        ToolBodies.add(root.bRepBodies.item(1))
-        ToolBodies.add(root.bRepBodies.item(4))
-        ToolBodies.add(root.bRepBodies.item(5))
+#        ToolBodies.add(root.bRepBodies.item(0))
+#        ToolBodies.add(root.bRepBodies.item(1))
+#        ToolBodies.add(root.bRepBodies.item(4))
+#        ToolBodies.add(root.bRepBodies.item(5))
         
-        CombineCutInput = root.features.combineFeatures.createInput(root.bRepBodies.item(2), ToolBodies )
-        CombineCutInput.operation = adsk.fusion.FeatureOperations.CutFeatureOperation
-        CombineCutInput.isKeepToolBodies = True
-        CombineCutFeats.add(CombineCutInput)
+#        ToolBodies.add(root.bRepBodies.itemByName("Bottom"))
+#        ToolBodies.add(root.bRepBodies.itemByName("Top"))
+#        ToolBodies.add(root.bRepBodies.itemByName("Front"))
+#        ToolBodies.add(root.bRepBodies.itemByName("Back"))
+        
+        componentNameMap = {}
+        componentNameMap[root.name] = root
+
+        for occ in root.allOccurrences:
+            subComp = occ.component
+            componentNameMap[subComp.name] = subComp
+        
+        allbodies = adsk.core.ObjectCollection.create()
+        for comp in list(componentNameMap.values()):
+            for body in comp.bRepBodies:
+                allbodies.add(body)
+        
+        #ui.messageBox("Total {} bodies under root component".format(allbodies.count))
+        
+        #Cut Rigth
+        #CombineCutInput = root.features.combineFeatures.createInput(root.bRepBodies.item(2), ToolBodies)
+#        CombineCutInput = root.features.combineFeatures.createInput(allbodies.item(0), allbodies)
+#        CombineCutInput.operation = adsk.fusion.FeatureOperations.CutFeatureOperation
+#        CombineCutInput.isKeepToolBodies = True
+#        CombineCutFeats.add(CombineCutInput)
         
         #Cut Left
-        CombineCutInput = root.features.combineFeatures.createInput(root.bRepBodies.item(3), ToolBodies )
-        CombineCutInput.operation = adsk.fusion.FeatureOperations.CutFeatureOperation
-        CombineCutInput.isKeepToolBodies = True
-        CombineCutFeats.add(CombineCutInput)
-        
-        #Cut Front
-        ToolBodies = adsk.core.ObjectCollection.create()
-        ToolBodies.add(root.bRepBodies.item(0))
-        ToolBodies.add(root.bRepBodies.item(1))
-        
-        CombineCutInput = root.features.combineFeatures.createInput(root.bRepBodies.item(4), ToolBodies )
-        CombineCutInput.operation = adsk.fusion.FeatureOperations.CutFeatureOperation
-        CombineCutInput.isKeepToolBodies = True
-        CombineCutFeats.add(CombineCutInput)
-        
-        #Cut back
-        ToolBodies = adsk.core.ObjectCollection.create()
-        ToolBodies.add(root.bRepBodies.item(0))
-        ToolBodies.add(root.bRepBodies.item(1))
-        
-        CombineCutInput = root.features.combineFeatures.createInput(root.bRepBodies.item(5), ToolBodies )
-        CombineCutInput.operation = adsk.fusion.FeatureOperations.CutFeatureOperation
-        CombineCutInput.isKeepToolBodies = True
-        CombineCutFeats.add(CombineCutInput)
+#        CombineCutInput = root.features.combineFeatures.createInput(root.bRepBodies.item(3), ToolBodies )
+#        CombineCutInput.operation = adsk.fusion.FeatureOperations.CutFeatureOperation
+#        CombineCutInput.isKeepToolBodies = True
+#        CombineCutFeats.add(CombineCutInput)
+#        
+#        #Cut Front
+#        ToolBodies = adsk.core.ObjectCollection.create()
+#        ToolBodies.add(root.bRepBodies.item(0))
+#        ToolBodies.add(root.bRepBodies.item(1))
+#        
+#        CombineCutInput = root.features.combineFeatures.createInput(root.bRepBodies.item(4), ToolBodies )
+#        CombineCutInput.operation = adsk.fusion.FeatureOperations.CutFeatureOperation
+#        CombineCutInput.isKeepToolBodies = True
+#        CombineCutFeats.add(CombineCutInput)
+#        
+#        #Cut back
+#        ToolBodies = adsk.core.ObjectCollection.create()
+#        ToolBodies.add(root.bRepBodies.item(0))
+#        ToolBodies.add(root.bRepBodies.item(1))
+#        
+#        CombineCutInput = root.features.combineFeatures.createInput(root.bRepBodies.item(5), ToolBodies )
+#        CombineCutInput.operation = adsk.fusion.FeatureOperations.CutFeatureOperation
+#        CombineCutInput.isKeepToolBodies = True
+#        CombineCutFeats.add(CombineCutInput)
         
         print(root.bRepBodies.count)
         
