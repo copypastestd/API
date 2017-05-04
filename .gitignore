@@ -15,6 +15,7 @@ local.properties
 .classpath
 .settings/
 .loadpath
+NiceBox-360
 
 # External tool builders
 .externalToolBuilders/
